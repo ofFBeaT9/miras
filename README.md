@@ -1,3 +1,54 @@
+# MIRAS Memory API
+
+A compact per-project long-term memory system based on the MIRAS
+architecture, intended as the memory backbone for BMAD-driven coding
+workflows.
+
+## Quick Start
+
+1. Install dependencies and start the API:
+
+```powershell
+pip install -r requirements.txt
+python api/server.py
+# Server runs on http://0.0.0.0:8100 and serves docs at /docs
+```
+
+2. Create a project (example):
+
+```bash
+curl -X POST http://localhost:8100/projects \
+  -H "Content-Type: application/json" \
+  -d '{"project_id":"my-saas-app","name":"My SaaS App","preset":"titans_default"}'
+```
+
+3. Use the included BMAD bridge (see `bmad_integration/bridge.py`) to
+   store facts, decisions, and load agent-specific context.
+
+## High-level Endpoints
+
+- `POST /projects` — create a project
+- `POST /projects/{id}/memorize` — store memory (surprise-gated)
+- `POST /projects/{id}/recall` — search memory
+- `POST /projects/{id}/context` — get LLM-ready context
+- `POST /projects/{id}/chat` — memory-augmented chat
+
+Interactive docs: http://localhost:8100/docs
+
+## Project layout
+
+- `api/` — FastAPI server
+- `miras_memory/` — core engine and registry
+- `bmad_integration/` — BMAD bridge + CLI
+- `tests/` — integration tests
+
+## Contributing
+
+Improve docs or presets by opening a PR. For usage questions, run the
+server and test the endpoints via the interactive docs.
+
+---
+File: README.md
 # MIRAS Memory API + BMAD
 
 A per-project long-term memory system based on Google's MIRAS framework, 
@@ -304,5 +355,6 @@ Supported tools: `claude-code`, `cursor`, `windsurf`, `cline`, `aider`, `generic
 | `MIRAS_STORAGE_DIR` | `./memory_store` | Where project memories are persisted |
 | `PORT` | `8100` | API server port |
 | `ANTHROPIC_API_KEY` | — | Required for `/chat` endpoint |
-#   m i r a s  
+#   m i r a s 
+ 
  
