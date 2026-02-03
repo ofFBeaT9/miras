@@ -8,6 +8,10 @@ import requests
 import time
 from pathlib import Path
 
+# Fix Unicode output on Windows console
+if sys.platform == 'win32':
+    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+
 API_URL = "http://localhost:8100"
 PROJECT_ID = "tritone-soc"
 
@@ -133,12 +137,19 @@ def process_document(filepath):
 
     return success, result
 
+def safe_filename(filename):
+    """Convert filename to safe ASCII for printing."""
+    return filename.encode('ascii', errors='replace').decode('ascii')
+
 def main():
     """Main function to process all documents."""
     docs_dirs = [
         "c:/Tritone SoC/docs",
         "c:/Tritone SoC/doccccs"
     ]
+
+    # Resume from specific document number (0-based, set via command line arg)
+    skip_to = int(sys.argv[1]) if len(sys.argv) > 1 else 0
 
     # Collect all files
     all_files = []
@@ -149,6 +160,8 @@ def main():
                     all_files.append(os.path.join(root, f))
 
     print(f"Found {len(all_files)} documents to process")
+    if skip_to > 0:
+        print(f"Resuming from document {skip_to + 1}")
     print("=" * 60)
 
     success_count = 0
@@ -156,8 +169,10 @@ def main():
     error_count = 0
 
     for i, filepath in enumerate(all_files):
+        if i < skip_to:
+            continue  # Skip already processed documents
         filename = os.path.basename(filepath)
-        print(f"[{i+1}/{len(all_files)}] Processing: {filename[:50]}...", end=" ")
+        print(f"[{i+1}/{len(all_files)}] Processing: {safe_filename(filename[:50])}...", end=" ")
 
         success, result = process_document(filepath)
 
